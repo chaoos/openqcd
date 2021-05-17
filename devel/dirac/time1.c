@@ -33,13 +33,13 @@
 
 int main(int argc,char *argv[])
 {
-   int my_rank,bc,count,nt;
+   int my_rank,bc,nt;
    int i,nflds;
    float mu;
    double phi[2],phi_prime[2],theta[3];
    double wt1,wt2,wdt;
    spinor **ps;
-   FILE *flog=NULL;
+   FILE* flog = NULL;
 
    MPI_Init(&argc,&argv);
    MPI_Comm_rank(MPI_COMM_WORLD,&my_rank);
@@ -127,13 +127,11 @@ int main(int argc,char *argv[])
    assign_ud2u();
    assign_swd2sw();
 
-   nflds=(int)((4*1024*1024)/(VOLUME*sizeof(float)))+1;
-   if ((nflds%2)==1)
-      nflds+=1;
+   nflds=2;
    alloc_ws(nflds);
    ps=reserve_ws(nflds);
 
-   for (i=0;i<nflds;i++)
+   for (i=0;i<2;i++)
       random_s(VOLUME,ps[i],1.0f);
 
    nt=(int)(1.0e6f/(double)(nflds*VOLUME));
@@ -141,21 +139,13 @@ int main(int argc,char *argv[])
       nt=2;
    wdt=0.0;
 
-   while (wdt<5.0)
-   {
       MPI_Barrier(MPI_COMM_WORLD);
       wt1=MPI_Wtime();
-      for (count=0;count<nt;count++)
-      {
-         for (i=0;i<nflds;i+=2)
-            Dw(mu,ps[i],ps[i+1]);
-      }
+      Dw(mu,ps[0],ps[1]);
       MPI_Barrier(MPI_COMM_WORLD);
       wt2=MPI_Wtime();
 
       wdt=wt2-wt1;
-      nt*=2;
-   }
 
    wdt=4.0e6*wdt/((double)(nt)*(double)(nflds*VOLUME));
 

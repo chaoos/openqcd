@@ -5,4 +5,4 @@ main/ms3
 main/ms4
 main/qcd1
 main/ym1
-*.o
+*.d
