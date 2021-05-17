@@ -153,35 +153,6 @@ int main(int argc,char *argv[])
    {
       printf("Time per lattice point for Dw():\n");
       printf("%4.3f micro sec (%d Mflops)\n\n",wdt,(int)(1920.0/wdt));
-   }
-
-   nt=(int)(1.0e6/(double)(nflds*VOLUME));
-   if (nt<2)
-      nt=2;
-   wdt=0.0;
-
-   while (wdt<5.0)
-   {
-      MPI_Barrier(MPI_COMM_WORLD);
-      wt1=MPI_Wtime();
-      for (count=0;count<nt;count++)
-      {
-         for (i=0;i<nflds;i+=2)
-            Dwhat(mu,ps[i],ps[i+1]);
-      }
-      MPI_Barrier(MPI_COMM_WORLD);
-      wt2=MPI_Wtime();
-
-      wdt=wt2-wt1;
-      nt*=2;
-   }
-
-   wdt=4.0e6*wdt/((double)(nt)*(double)(nflds*VOLUME));
-
-   if (my_rank==0)
-   {
-      printf("Time per lattice point for Dwhat():\n");
-      printf("%4.3f micro sec (%d Mflops)\n\n",wdt,(int)(1908.0/wdt));
       fclose(flog);
    }
 
