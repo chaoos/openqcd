@@ -977,7 +977,8 @@ void Dw(float mu,spinor *s,spinor *r)
 {
    int bc,ix,t;
    int *piup,*pidn;
-   su3 *u,*um;
+   int idx;
+   su3 *u;
    pauli *m;
    spin_t *so,*ro;
    tm_parms_t tm;
@@ -1000,65 +1001,54 @@ void Dw(float mu,spinor *s,spinor *r)
    ro=(spin_t*)(r+(VOLUME/2));
    m+=VOLUME;
    u=ufld();
-   um=u+4*VOLUME;
 
    if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
    {
       ix=VOLUME/2;
 
-      for (;u<um;u+=8)
+      for (idx=0;idx < VOLUME/2;idx++)
       {
          t=global_time(ix);
          ix+=1;
 
          if ((t>0)&&((t<(N0-1))||(bc!=0)))
          {
-            doe(piup,pidn,u,s);
+            doe((piup+4*idx),(pidn+4*idx),u+8*idx,s);
 
-            mul_pauli2(mu,m,&((*so).s),&((*ro).s));
+            mul_pauli2(mu,m+2*idx,&((*(so+idx)).s),&((*(ro+idx)).s));
 
-            _vector_add_assign((*ro).s.c1,rs.s.c1);
-            _vector_add_assign((*ro).s.c2,rs.s.c2);
-            _vector_add_assign((*ro).s.c3,rs.s.c3);
-            _vector_add_assign((*ro).s.c4,rs.s.c4);
-            rs=(*so);
+            _vector_add_assign((*(ro+idx)).s.c1,rs.s.c1);
+            _vector_add_assign((*(ro+idx)).s.c2,rs.s.c2);
+            _vector_add_assign((*(ro+idx)).s.c3,rs.s.c3);
+            _vector_add_assign((*(ro+idx)).s.c4,rs.s.c4);
+            rs=(*(so+idx));
 
-            deo(piup,pidn,u,r);
+            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r);
          }
          else
          {
-            (*so).s=s0;
-            (*ro).s=s0;
+            (*(so+idx)).s=s0;
+            (*(ro+idx)).s=s0;
          }
-
-         piup+=4;
-         pidn+=4;
-         so+=1;
-         ro+=1;
-         m+=2;
       }
    }
    else
    {
-      for (;u<um;u+=8)
+      for (idx=0;idx < VOLUME/2;idx++)
       {
-         doe(piup,pidn,u,s);
+         doe((piup+4*idx),(pidn+4*idx),u+8*idx,s);
 
-         mul_pauli2(mu,m,&((*so).s),&((*ro).s));
+         mul_pauli2(mu,m+2*idx,&((*(so+idx)).s),&((*(ro+idx)).s));
 
-         _vector_add_assign((*ro).s.c1,rs.s.c1);
-         _vector_add_assign((*ro).s.c2,rs.s.c2);
-         _vector_add_assign((*ro).s.c3,rs.s.c3);
-         _vector_add_assign((*ro).s.c4,rs.s.c4);
-         rs=(*so);
+      	 _vector_add_assign((*(ro+idx)).s.c1,rs.s.c1);
+         _vector_add_assign((*(ro+idx)).s.c2,rs.s.c2);
+         _vector_add_assign((*(ro+idx)).s.c3,rs.s.c3);
+         _vector_add_assign((*(ro+idx)).s.c4,rs.s.c4);
+         rs=(*(so+idx));
 
-         deo(piup,pidn,u,r);
 
-         piup+=4;
-         pidn+=4;
-         so+=1;
-         ro+=1;
-         m+=2;
+         deo((piup+4*idx),(pidn+4*idx),u+8*idx,r);
+
       }
    }
 
