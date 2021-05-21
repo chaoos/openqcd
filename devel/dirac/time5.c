@@ -147,7 +147,7 @@ int main(int argc,char *argv[])
 
    if (my_rank==0)
    {
-      printf("Time of %d invocations of Dw():\n", i);
+      printf("Absolute time of %d invocations of Dw():\n", i);
       printf("%4.3f micro sec\n\n",wdt);
    }
 
@@ -164,8 +164,8 @@ int main(int argc,char *argv[])
 
    if (my_rank==0)
    {
-      printf("Time of %d invocations of Dw_openMP():\n", i);
-      printf("%4.3f micro sec\n\n",wdt);
+      printf("Absolute time of %d invocations of Dw_openMP():\n", i);
+      printf("%4.3f sec\n\n",wdt);
       fclose(flog);
    }
 

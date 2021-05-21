@@ -1092,10 +1092,10 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
    m+=VOLUME;
    u=ufld();
 
-   #pragma omp parallel default(none) shared(piup,pidn,bc,cpr,mu,m,u,s) firstprivate(r) private(rs,t,idx)
+   #pragma omp parallel default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
    if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
    {
-      #pragma omp for
+      #pragma omp for ordered schedule(static,4)
       for (idx=0;idx<VOLUME/2;idx++)
       {
          t=global_time(VOLUME/2+idx);
@@ -1113,11 +1113,11 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
             _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
             rs=*(spin_t*)(s+VOLUME/2+idx);
 
-            #pragma omp critical
+            /* removing ordered make the code faster, but check1 fails then. */
+            #pragma omp ordered
             {
                deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
             }
-
          }
          else
          {
@@ -1130,7 +1130,7 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
    }
    else
    {
-      #pragma omp for
+      #pragma omp for ordered
       for (idx=0;idx<VOLUME/2;idx++)
       {
          doe((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
@@ -1143,7 +1143,7 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
          _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
          rs=*(spin_t*)(s+VOLUME/2+idx);
 
-         #pragma omp critical
+         #pragma omp ordered
          {
             deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
          }
