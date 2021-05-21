@@ -19,8 +19,8 @@ all: rmxeq mkdep mkxeq
 
 # main programs and modules to be compiled
 
-MAIN = check1 check2 check3 check4 check5 check6 check7 check8 check9 \
-       time1 time2 time3 time4
+MAIN = check1 check2 check3 check4 check5 check6 check7 check8 check9 check10 \
+       time1 time2 time3 time4 time5
 
 BLOCK = block blk_grid map_u2blk map_sw2blk map_s2blk
 
@@ -83,7 +83,7 @@ LIBPATH = $(MPI_HOME)/lib
 
 CFLAGS = -std=c89 -pedantic -fstrict-aliasing \
          -Wall -Wno-long-long -Wstrict-prototypes -Werror \
-         -O -mno-avx -Dx64 -DPM -fopenmp
+         -O -mno-avx -DPM -fopenmp #-Dx64 <-- no SSE
 
 LFLAGS = -fopenmp
 

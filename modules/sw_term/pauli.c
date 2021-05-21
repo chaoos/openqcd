@@ -954,12 +954,13 @@ void mul_pauli2(float mu,pauli *m,spinor *s,spinor *r)
 #endif
 #else
 
-static weyl rs;
+/*static weyl rs;*/
 
 
 void mul_pauli(float mu,pauli *m,weyl *s,weyl *r)
 {
    float *u;
+   weyl rs;
 
    u=(*m).u;
 

@@ -26,6 +26,7 @@ extern void Dw_bnd(blk_grid_t grid,int n,int k,int l);
 
 /* DW_C */
 extern void Dw(float mu,spinor *s,spinor *r);
+extern void Dw_openMP(float mu,spinor *s,spinor *r);
 extern void Dwee(float mu,spinor *s,spinor *r);
 extern void Dwoo(float mu,spinor *s,spinor *r);
 extern void Dweo(spinor *s,spinor *r);

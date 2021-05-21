@@ -975,10 +975,9 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
 
 void Dw(float mu,spinor *s,spinor *r)
 {
-   int bc,t;
+   int bc,ix,t;
    int *piup,*pidn;
-   int idx;
-   su3 *u;
+   su3 *u,*um;
    pauli *m;
    spin_t *so,*ro;
    tm_parms_t tm;
@@ -1001,11 +1000,103 @@ void Dw(float mu,spinor *s,spinor *r)
    ro=(spin_t*)(r+(VOLUME/2));
    m+=VOLUME;
    u=ufld();
+   um=u+4*VOLUME;
 
    if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
    {
-      #pragma omp parallel for default(none) shared(r,s,mu,m,u,ro,so,piup,pidn,bc,cpr) firstprivate(rs) private(t)
-      for (idx=0;idx < VOLUME/2;idx++)
+      ix=VOLUME/2;
+
+      for (;u<um;u+=8)
+      {
+         t=global_time(ix);
+         ix+=1;
+
+         if ((t>0)&&((t<(N0-1))||(bc!=0)))
+         {
+            doe(piup,pidn,u,s,&rs);
+
+            mul_pauli2(mu,m,&((*so).s),&((*ro).s));
+
+            _vector_add_assign((*ro).s.c1,rs.s.c1);
+            _vector_add_assign((*ro).s.c2,rs.s.c2);
+            _vector_add_assign((*ro).s.c3,rs.s.c3);
+            _vector_add_assign((*ro).s.c4,rs.s.c4);
+            rs=(*so);
+
+            deo(piup,pidn,u,r,&rs);
+         }
+         else
+         {
+            (*so).s=s0;
+            (*ro).s=s0;
+         }
+
+         piup+=4;
+         pidn+=4;
+         so+=1;
+         ro+=1;
+         m+=2;
+      }
+   }
+   else
+   {
+      for (;u<um;u+=8)
+      {
+         doe(piup,pidn,u,s,&rs);
+
+         mul_pauli2(mu,m,&((*so).s),&((*ro).s));
+
+         _vector_add_assign((*ro).s.c1,rs.s.c1);
+         _vector_add_assign((*ro).s.c2,rs.s.c2);
+         _vector_add_assign((*ro).s.c3,rs.s.c3);
+         _vector_add_assign((*ro).s.c4,rs.s.c4);
+         rs=(*so);
+
+         deo(piup,pidn,u,r,&rs);
+
+         piup+=4;
+         pidn+=4;
+         so+=1;
+         ro+=1;
+         m+=2;
+      }
+   }
+
+   cps_ext_bnd(0x1,r);
+}
+
+
+void Dw_openMP(float mu,spinor *s,spinor *r)
+{
+   int bc,t;
+   int *piup,*pidn;
+   int idx;
+   su3 *u;
+   pauli *m;
+   tm_parms_t tm;
+
+   cps_int_bnd(0x1,s);
+   m=swfld();
+   apply_sw(VOLUME/2,mu,m,s,r);
+   set_s2zero(BNDRY/2,r+VOLUME);
+   tm=tm_parms();
+   if (tm.eoflg==1)
+      mu=0.0f;
+
+   coe=-0.5f;
+   ceo=-0.5f;
+   bc=bc_type();
+   piup=iup[VOLUME/2];
+   pidn=idn[VOLUME/2];
+
+   m+=VOLUME;
+   u=ufld();
+
+   #pragma omp parallel default(none) shared(piup,pidn,bc,cpr,mu,m,u,s) firstprivate(r) private(rs,t,idx)
+   if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
+   {
+      #pragma omp for
+      for (idx=0;idx<VOLUME/2;idx++)
       {
          t=global_time(VOLUME/2+idx);
 
@@ -1013,41 +1104,49 @@ void Dw(float mu,spinor *s,spinor *r)
          {
             doe((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
 
-            mul_pauli2(mu,m+2*idx,&((*(so+idx)).s),&((*(ro+idx)).s));
+            mul_pauli2(mu,m+2*idx,s+VOLUME/2+idx,r+VOLUME/2+idx);
 
-            _vector_add_assign((*(ro+idx)).s.c1,rs.s.c1);
-            _vector_add_assign((*(ro+idx)).s.c2,rs.s.c2);
-            _vector_add_assign((*(ro+idx)).s.c3,rs.s.c3);
-            _vector_add_assign((*(ro+idx)).s.c4,rs.s.c4);
-            rs=(*(so+idx));
+            /* first += second */
+            _vector_add_assign((*(r+VOLUME/2+idx)).c1,rs.s.c1);
+            _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
+            _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
+            _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
+            rs=*(spin_t*)(s+VOLUME/2+idx);
 
-            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
+            #pragma omp critical
+            {
+               deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
+            }
+
          }
          else
          {
-            (*(so+idx)).s=s0;
-            (*(ro+idx)).s=s0;
+            /*(*(so+idx)).s=s0;*/
+            /*(*(ro+idx)).s=s0;*/
+            *(s+VOLUME/2+idx)=s0;
+            *(r+VOLUME/2+idx)=s0;
          }
       }
    }
    else
    {
-      #pragma omp parallel for default(none) shared(r,s,mu,m,u,ro,so,piup,pidn,bc,cpr) firstprivate(rs) private(t)
-      for (idx=0;idx < VOLUME/2;idx++)
+      #pragma omp for
+      for (idx=0;idx<VOLUME/2;idx++)
       {
          doe((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
 
-         mul_pauli2(mu,m+2*idx,&((*(so+idx)).s),&((*(ro+idx)).s));
+         mul_pauli2(mu,m+2*idx,s+VOLUME/2+idx,r+VOLUME/2+idx);
 
-      	 _vector_add_assign((*(ro+idx)).s.c1,rs.s.c1);
-         _vector_add_assign((*(ro+idx)).s.c2,rs.s.c2);
-         _vector_add_assign((*(ro+idx)).s.c3,rs.s.c3);
-         _vector_add_assign((*(ro+idx)).s.c4,rs.s.c4);
-         rs=(*(so+idx));
+         _vector_add_assign((*(r+VOLUME/2+idx)).c1,rs.s.c1);
+         _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
+         _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
+         _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
+         rs=*(spin_t*)(s+VOLUME/2+idx);
 
-
-         deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-
+         #pragma omp critical
+         {
+            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
+         }
       }
    }
 
