@@ -127,7 +127,8 @@ int main(int argc,char *argv[])
    assign_ud2u();
    assign_swd2sw();
 
-   nflds=(int)((4*1024*1024)/(VOLUME*sizeof(float)))+1;
+   /*nflds=(int)((4*1024*1024)/(VOLUME*sizeof(float)))+1;*/
+   nflds=10;
    if ((nflds%2)==1)
       nflds+=1;
    alloc_ws(nflds);

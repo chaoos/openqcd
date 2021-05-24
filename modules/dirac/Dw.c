@@ -973,7 +973,7 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
 
 #endif
 
-void Dw(float mu,spinor *s,spinor *r)
+void Dw_openMP(float mu,spinor *s,spinor *r)
 {
    int bc,ix,t;
    int *piup,*pidn;
@@ -1066,7 +1066,7 @@ void Dw(float mu,spinor *s,spinor *r)
 }
 
 
-void Dw_openMP(float mu,spinor *s,spinor *r)
+void Dw(float mu,spinor *s,spinor *r)
 {
    int bc,t;
    int *piup,*pidn;
@@ -1092,10 +1092,9 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
    m+=VOLUME;
    u=ufld();
 
-   #pragma omp parallel default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
    if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
    {
-      #pragma omp for ordered schedule(static,4)
+      #pragma omp parallel for ordered default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
       for (idx=0;idx<VOLUME/2;idx++)
       {
          t=global_time(VOLUME/2+idx);
@@ -1111,26 +1110,28 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
             _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
             _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
             _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
-            rs=*(spin_t*)(s+VOLUME/2+idx);
-
-            /* removing ordered make the code faster, but check1 fails then. */
-            #pragma omp ordered
-            {
-               deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-            }
          }
          else
          {
-            /*(*(so+idx)).s=s0;*/
-            /*(*(ro+idx)).s=s0;*/
             *(s+VOLUME/2+idx)=s0;
             *(r+VOLUME/2+idx)=s0;
+         }
+      }
+
+      /* separate serial for loop for deo() */
+      for (idx=0;idx<VOLUME/2;idx++)
+      {
+         t=global_time(VOLUME/2+idx);
+         if ((t>0)&&((t<(N0-1))||(bc!=0)))
+         {
+            rs=*(spin_t*)(s+VOLUME/2+idx);
+            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
          }
       }
    }
    else
    {
-      #pragma omp for ordered
+      #pragma omp parallel for ordered default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
       for (idx=0;idx<VOLUME/2;idx++)
       {
          doe((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
@@ -1141,13 +1142,15 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
          _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
          _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
          _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
-         rs=*(spin_t*)(s+VOLUME/2+idx);
-
-         #pragma omp ordered
-         {
-            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-         }
       }
+
+      /* separate serial for loop for deo() */
+      for (idx=0;idx<VOLUME/2;idx++)
+      {
+         rs=*(spin_t*)(s+VOLUME/2+idx);
+         deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
+      }
+
    }
 
    cps_ext_bnd(0x1,r);
