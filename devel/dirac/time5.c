@@ -127,8 +127,8 @@ int main(int argc,char *argv[])
    assign_ud2u();
    assign_swd2sw();
 
-   /*nflds=(int)((4*1024*1024)/(VOLUME*sizeof(float)))+1;*/
-   nflds=10;
+   /*nflds=(int)((1000*1024*1024)/(VOLUME*sizeof(float)))+nflds=2*1;*/
+   nflds=2*1;
    if ((nflds%2)==1)
       nflds+=1;
    alloc_ws(nflds);
@@ -137,10 +137,10 @@ int main(int argc,char *argv[])
    for (i=0;i<nflds;i++)
       random_s(VOLUME,ps[i],1.0f);
 
-   MPI_Barrier(MPI_COMM_WORLD);
+   /*MPI_Barrier(MPI_COMM_WORLD);
    wt1=MPI_Wtime();
    for (i=0;i<nflds;i+=2)
-      Dw(mu,ps[i],ps[i+1]);
+      Dw_openMP(mu,ps[i],ps[i+1]);
    MPI_Barrier(MPI_COMM_WORLD);
    wt2=MPI_Wtime();
 
@@ -148,9 +148,9 @@ int main(int argc,char *argv[])
 
    if (my_rank==0)
    {
-      printf("Absolute time of %d invocations of Dw():\n", i);
-      printf("%4.3f micro sec\n\n",wdt);
-   }
+      printf("Absolute time of %d invocations of Dw_openMP():\n", i/2);
+      printf("%4.3f sec\n\n",wdt);
+   }*/
 
    wdt=0.0;
 
@@ -165,8 +165,8 @@ int main(int argc,char *argv[])
 
    if (my_rank==0)
    {
-      printf("Absolute time of %d invocations of Dw_openMP():\n", i);
-      printf("%4.3f sec\n\n",wdt);
+      printf("Absolute time of %d invocations of Dw_openMP():\n", i/2);
+      printf("%4.3f micro sec\n\n",wdt*1000000);
       fclose(flog);
    }
 

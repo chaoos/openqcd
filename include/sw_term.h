@@ -26,6 +26,7 @@ extern void mul_pauli(float mu,pauli *m,weyl *s,weyl *r);
 extern void mul_pauli2(float mu,pauli *m,spinor *s,spinor *r);
 extern void assign_pauli(int vol,pauli_dble *md,pauli *m);
 extern void apply_sw(int vol,float mu,pauli *m,spinor *s,spinor *r);
+extern void apply_sw_openMP(int vol,float mu,pauli *m,spinor *s,spinor *r);
 
 /* PAULI_DBLE_C */
 extern void mul_pauli_dble(double mu,pauli_dble *m,weyl_dble *s,weyl_dble *r);
@@ -38,6 +39,7 @@ extern int apply_swinv_dble(int vol,double mu,pauli_dble *m,spinor_dble *s,
 
 /* SWFLDS_C */
 extern pauli *swfld(void);
+extern pauli *swfld_openMP(void);
 extern pauli_dble *swdfld(void);
 extern void assign_swd2sw(void);
 

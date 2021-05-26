@@ -31,6 +31,7 @@ extern int shift_ud(int *s);
 
 /* UFLDS_C */
 extern su3 *ufld(void);
+extern su3 *ufld_openMP(void);
 extern su3_dble *udfld(void);
 extern void random_ud(void);
 extern void set_ud_phase(void);

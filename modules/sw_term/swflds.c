@@ -78,6 +78,38 @@ static void alloc_sw(void)
 }
 
 
+static void alloc_sw_openMP(void)
+{
+   int i;
+   pauli *sw,unity;
+
+   error_root(sizeof(pauli)!=(36*sizeof(float)),1,"alloc_sw [swflds.c]",
+              "The pauli structures are not properly packed");
+
+   swb=amalloc(2*VOLUME*sizeof(*swb),ALIGN);
+   error(swb==NULL,1,"alloc_sw [swflds.c]",
+         "Unable to allocate the global single-precision SW field");
+
+   unity.u[0]=1.0f;
+   unity.u[1]=1.0f;
+   unity.u[2]=1.0f;
+   unity.u[3]=1.0f;
+   unity.u[4]=1.0f;
+   unity.u[5]=1.0f;
+
+   for (i=6;i<36;i++)
+      unity.u[i]=0.0f;
+
+   sw=swb;
+
+   #pragma omp parallel for schedule(static,2) default(none) shared(unity,sw) private(i)
+   for (i=0;i<2*VOLUME;i++)
+   {
+      (*(sw+i))=unity;
+   }
+}
+
+
 pauli *swfld(void)
 {
    if (swb==NULL)
@@ -86,6 +118,13 @@ pauli *swfld(void)
    return swb;
 }
 
+pauli *swfld_openMP(void)
+{
+   if (swb==NULL)
+      alloc_sw_openMP();
+
+   return swb;
+}
 
 static void alloc_swd(void)
 {

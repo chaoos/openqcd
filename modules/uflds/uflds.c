@@ -119,6 +119,43 @@ static void alloc_u(void)
 }
 
 
+static void alloc_u_openMP(void)
+{
+   int i;
+   su3 unity,*u;
+
+   error_root(sizeof(su3)!=(18*sizeof(float)),1,"alloc_u [uflds.c]",
+              "The su3 structures are not properly packed");
+
+   ub=amalloc(4*VOLUME*sizeof(*ub),ALIGN);
+   error(ub==NULL,1,"alloc_u [uflds.c]",
+         "Unable to allocate memory space for the gauge field");
+
+   unity=u0;
+   unity.c11.re=1.0f;
+   unity.c22.re=1.0f;
+   unity.c33.re=1.0f;
+   u=ub;
+
+   #pragma omp parallel for schedule(static,8) default(none) shared(unity,u) private(i)
+   for (i=0;i<4*VOLUME;i++)
+   {
+      (*(u+i))=unity;
+   }
+
+   set_flags(UPDATED_U);
+}
+
+
+su3 *ufld_openMP(void)
+{
+   if (ub==NULL)
+      alloc_u_openMP();
+
+   return ub;
+}
+
+
 su3 *ufld(void)
 {
    if (ub==NULL)

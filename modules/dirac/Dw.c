@@ -841,6 +841,137 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 }
 
 
+static void doe_openMP(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
+{
+   spinor *sp,*sm;
+   su3_vector psi,chi;
+   su3 *ui;
+
+/******************************* direction +0 *********************************/
+
+   sp=pk+(*(piup++));
+   ui=u;
+
+   _vector_add(psi,(*sp).c1,(*sp).c3);
+   _su3_multiply((*rs).s.c1,*u,psi);
+   (*rs).s.c3=(*rs).s.c1;
+
+   _vector_add(psi,(*sp).c2,(*sp).c4);
+   _su3_multiply((*rs).s.c2,*u,psi);
+   (*rs).s.c4=(*rs).s.c2;
+
+/******************************* direction -0 *********************************/
+
+   sm=pk+(*(pidn++));
+   ui=u+1;
+
+   _vector_sub(psi,(*sm).c1,(*sm).c3);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_sub_assign((*rs).s.c3,chi);
+
+   _vector_sub(psi,(*sm).c2,(*sm).c4);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_sub_assign((*rs).s.c4,chi);
+
+/******************************* direction +1 *********************************/
+
+   sp=pk+(*(piup++));
+   ui=u+2;
+
+   _vector_i_add(psi,(*sp).c1,(*sp).c4);
+   _su3_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_sub_assign((*rs).s.c4,chi);
+
+   _vector_i_add(psi,(*sp).c2,(*sp).c3);
+   _su3_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_sub_assign((*rs).s.c3,chi);
+
+/******************************* direction -1 *********************************/
+
+   sm=pk+(*(pidn++));
+   ui=u+3;
+
+   _vector_i_sub(psi,(*sm).c1,(*sm).c4);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_add_assign((*rs).s.c4,chi);
+
+   _vector_i_sub(psi,(*sm).c2,(*sm).c3);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_add_assign((*rs).s.c3,chi);
+
+/******************************* direction +2 *********************************/
+
+   sp=pk+(*(piup++));
+   ui=u+4;
+
+   _vector_add(psi,(*sp).c1,(*sp).c4);
+   _su3_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_add_assign((*rs).s.c4,chi);
+
+   _vector_sub(psi,(*sp).c2,(*sp).c3);
+   _su3_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_sub_assign((*rs).s.c3,chi);
+
+/******************************* direction -2 *********************************/
+
+   sm=pk+(*(pidn++));
+   ui=u+5;
+
+   _vector_sub(psi,(*sm).c1,(*sm).c4);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_sub_assign((*rs).s.c4,chi);
+
+   _vector_add(psi,(*sm).c2,(*sm).c3);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_add_assign((*rs).s.c3,chi);
+
+/******************************* direction +3 *********************************/
+
+   sp=pk+(*(piup));
+   ui=u+6;
+
+   _vector_i_add(psi,(*sp).c1,(*sp).c3);
+   _su3_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_sub_assign((*rs).s.c3,chi);
+
+   _vector_i_sub(psi,(*sp).c2,(*sp).c4);
+   _su3_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_add_assign((*rs).s.c4,chi);
+
+/******************************* direction -3 *********************************/
+
+   sm=pk+(*(pidn));
+   ui=u+7;
+
+   _vector_i_sub(psi,(*sm).c1,(*sm).c3);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_add_assign((*rs).s.c3,chi);
+
+   _vector_i_add(psi,(*sm).c2,(*sm).c4);
+   _su3_inverse_multiply(chi,*ui,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_sub_assign((*rs).s.c4,chi);
+
+   _vector_mul_assign((*rs).s.c1,coe);
+   _vector_mul_assign((*rs).s.c2,coe);
+   _vector_mul_assign((*rs).s.c3,coe);
+   _vector_mul_assign((*rs).s.c4,coe);
+}
+
+
 static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
 {
    spinor *sp,*sm;
@@ -973,7 +1104,7 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
 
 #endif
 
-void Dw_openMP(float mu,spinor *s,spinor *r)
+void Dw(float mu,spinor *s,spinor *r)
 {
    int bc,ix,t;
    int *piup,*pidn;
@@ -1066,7 +1197,7 @@ void Dw_openMP(float mu,spinor *s,spinor *r)
 }
 
 
-void Dw(float mu,spinor *s,spinor *r)
+void Dw_openMP(float mu,spinor *s,spinor *r)
 {
    int bc,t;
    int *piup,*pidn;
@@ -1076,8 +1207,8 @@ void Dw(float mu,spinor *s,spinor *r)
    tm_parms_t tm;
 
    cps_int_bnd(0x1,s);
-   m=swfld();
-   apply_sw(VOLUME/2,mu,m,s,r);
+   m=swfld_openMP(); /**/
+   apply_sw_openMP(VOLUME/2,mu,m,s,r);
    set_s2zero(BNDRY/2,r+VOLUME);
    tm=tm_parms();
    if (tm.eoflg==1)
@@ -1090,18 +1221,18 @@ void Dw(float mu,spinor *s,spinor *r)
    pidn=idn[VOLUME/2];
 
    m+=VOLUME;
-   u=ufld();
+   u=ufld_openMP();
 
    if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
    {
-      #pragma omp parallel for ordered default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
+      #pragma omp parallel for schedule(static,1) ordered default(none) shared(bc,cpr,mu,m,u,piup,pidn,s,r) private(rs,t,idx)
       for (idx=0;idx<VOLUME/2;idx++)
       {
          t=global_time(VOLUME/2+idx);
 
          if ((t>0)&&((t<(N0-1))||(bc!=0)))
          {
-            doe((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
+            doe_openMP((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
 
             mul_pauli2(mu,m+2*idx,s+VOLUME/2+idx,r+VOLUME/2+idx);
 
@@ -1110,6 +1241,13 @@ void Dw(float mu,spinor *s,spinor *r)
             _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
             _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
             _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
+
+            rs=*(spin_t*)(s+VOLUME/2+idx);
+            /* removing ordered makes the code faster, but check1 fails then. */
+            #pragma omp ordered
+            {
+               deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
+            }
          }
          else
          {
@@ -1119,7 +1257,7 @@ void Dw(float mu,spinor *s,spinor *r)
       }
 
       /* separate serial for loop for deo() */
-      for (idx=0;idx<VOLUME/2;idx++)
+      /*for (idx=0;idx<VOLUME/2;idx++)
       {
          t=global_time(VOLUME/2+idx);
          if ((t>0)&&((t<(N0-1))||(bc!=0)))
@@ -1127,14 +1265,14 @@ void Dw(float mu,spinor *s,spinor *r)
             rs=*(spin_t*)(s+VOLUME/2+idx);
             deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
          }
-      }
+      }*/
    }
    else
    {
-      #pragma omp parallel for ordered default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
+      #pragma omp parallel for schedule(static,1) ordered default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
       for (idx=0;idx<VOLUME/2;idx++)
       {
-         doe((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
+         doe_openMP((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
 
          mul_pauli2(mu,m+2*idx,s+VOLUME/2+idx,r+VOLUME/2+idx);
 
@@ -1142,14 +1280,21 @@ void Dw(float mu,spinor *s,spinor *r)
          _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
          _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
          _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
+
+         rs=*(spin_t*)(s+VOLUME/2+idx);
+         /* removing ordered makes the code faster, but check1 fails then. */
+         #pragma omp ordered
+         {
+            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
+         }
       }
 
       /* separate serial for loop for deo() */
-      for (idx=0;idx<VOLUME/2;idx++)
+      /*for (idx=0;idx<VOLUME/2;idx++)
       {
          rs=*(spin_t*)(s+VOLUME/2+idx);
          deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-      }
+      }*/
 
    }
 
