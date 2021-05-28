@@ -882,7 +882,7 @@ void assign_s2sd(int vol,spinor *s,spinor_dble *rd)
       (*rd).c4.c2.re=(double)((*s).c4.c2.re);
       (*rd).c4.c2.im=(double)((*s).c4.c2.im);
       (*rd).c4.c3.re=(double)((*s).c4.c3.re);
-      (*rd).c4.c3.im=(double)((*s).c4.c3.im);      
+      (*rd).c4.c3.im=(double)((*s).c4.c3.im);
 
       rd+=1;
    }
@@ -923,7 +923,7 @@ void assign_sd2s(int vol,spinor_dble *sd,spinor *r)
       (*r).c4.c2.re=(float)((*sd).c4.c2.re);
       (*r).c4.c2.im=(float)((*sd).c4.c2.im);
       (*r).c4.c3.re=(float)((*sd).c4.c3.re);
-      (*r).c4.c3.im=(float)((*sd).c4.c3.im);      
+      (*r).c4.c3.im=(float)((*sd).c4.c3.im);
       
       r+=1;
    }
@@ -1046,6 +1046,8 @@ void diff_sd2s(int vol,spinor_dble *sd,spinor_dble *rd,spinor *r)
 
 #endif
 
+#if (defined _OPENMP)
+
 void random_s(int vol,spinor *s,float sigma)
 {
    float r[24];
@@ -1054,8 +1056,8 @@ void random_s(int vol,spinor *s,float sigma)
    sm=s+vol;
    for (;s<sm;s++)*/
    
-   #pragma omp parallel for schedule(static,1) default(none) shared(sigma,s,vol) private(i,r)
-   for (i=0;i<vol;i++)
+   #pragma omp parallel for schedule(runtime) default(none) shared(sigma,s,vol) private(i,r)
+   for (i=0;i<vol/2;i++)
    {
       gauss(r,24);
 
@@ -1087,8 +1089,87 @@ void random_s(int vol,spinor *s,float sigma)
       (*(s+i)).c4.c3.re=sigma*r[22];
       (*(s+i)).c4.c3.im=sigma*r[23];
    }
+
+   #pragma omp parallel for schedule(runtime) default(none) shared(sigma,s,vol) private(i,r)
+   for (i=0;i<vol/2;i++)
+   {
+      gauss(r,24);
+
+      (*(s+vol/2+i)).c1.c1.re=sigma*r[ 0];
+      (*(s+vol/2+i)).c1.c1.im=sigma*r[ 1];
+      (*(s+vol/2+i)).c1.c2.re=sigma*r[ 2];
+      (*(s+vol/2+i)).c1.c2.im=sigma*r[ 3];
+      (*(s+vol/2+i)).c1.c3.re=sigma*r[ 4];
+      (*(s+vol/2+i)).c1.c3.im=sigma*r[ 5];
+
+      (*(s+vol/2+i)).c2.c1.re=sigma*r[ 6];
+      (*(s+vol/2+i)).c2.c1.im=sigma*r[ 7];
+      (*(s+vol/2+i)).c2.c2.re=sigma*r[ 8];
+      (*(s+vol/2+i)).c2.c2.im=sigma*r[ 9];
+      (*(s+vol/2+i)).c2.c3.re=sigma*r[10];
+      (*(s+vol/2+i)).c2.c3.im=sigma*r[11];
+
+      (*(s+vol/2+i)).c3.c1.re=sigma*r[12];
+      (*(s+vol/2+i)).c3.c1.im=sigma*r[13];
+      (*(s+vol/2+i)).c3.c2.re=sigma*r[14];
+      (*(s+vol/2+i)).c3.c2.im=sigma*r[15];
+      (*(s+vol/2+i)).c3.c3.re=sigma*r[16];
+      (*(s+vol/2+i)).c3.c3.im=sigma*r[17];
+      
+      (*(s+vol/2+i)).c4.c1.re=sigma*r[18];
+      (*(s+vol/2+i)).c4.c1.im=sigma*r[19];
+      (*(s+vol/2+i)).c4.c2.re=sigma*r[20];
+      (*(s+vol/2+i)).c4.c2.im=sigma*r[21];
+      (*(s+vol/2+i)).c4.c3.re=sigma*r[22];
+      (*(s+vol/2+i)).c4.c3.im=sigma*r[23];
+   }
+
 }
 
+#else
+
+void random_s(int vol,spinor *s,float sigma)
+{
+   float r[24];
+   spinor *sm;
+
+   sm=s+vol;
+   
+   for (;s<sm;s++)
+   {
+      gauss(r,24);
+
+      (*s).c1.c1.re=sigma*r[ 0];
+      (*s).c1.c1.im=sigma*r[ 1];
+      (*s).c1.c2.re=sigma*r[ 2];
+      (*s).c1.c2.im=sigma*r[ 3];
+      (*s).c1.c3.re=sigma*r[ 4];
+      (*s).c1.c3.im=sigma*r[ 5];
+
+      (*s).c2.c1.re=sigma*r[ 6];
+      (*s).c2.c1.im=sigma*r[ 7];
+      (*s).c2.c2.re=sigma*r[ 8];
+      (*s).c2.c2.im=sigma*r[ 9];
+      (*s).c2.c3.re=sigma*r[10];
+      (*s).c2.c3.im=sigma*r[11];
+
+      (*s).c3.c1.re=sigma*r[12];
+      (*s).c3.c1.im=sigma*r[13];
+      (*s).c3.c2.re=sigma*r[14];
+      (*s).c3.c2.im=sigma*r[15];
+      (*s).c3.c3.re=sigma*r[16];
+      (*s).c3.c3.im=sigma*r[17];      
+      
+      (*s).c4.c1.re=sigma*r[18];
+      (*s).c4.c1.im=sigma*r[19];
+      (*s).c4.c2.re=sigma*r[20];
+      (*s).c4.c2.im=sigma*r[21];
+      (*s).c4.c3.re=sigma*r[22];
+      (*s).c4.c3.im=sigma*r[23]; 
+   }
+}
+
+#endif
 
 void random_sd(int vol,spinor_dble *sd,double sigma)
 {

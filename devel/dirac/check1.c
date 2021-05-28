@@ -359,19 +359,19 @@ int main(int argc,char *argv[])
    Dw(mu,ps[0],ps[1]);
    mulr_spinor_add(VOLUME,ps[4],ps[0],-1.0f);
    d=norm_square(VOLUME,1,ps[4]);
-   error(d!=0.0f,1,"main [check1.c]","Dw() changes the input field");
+   error(d>FLT_EPSILON,1,"main [check1.c]","Dw() changes the input field");
 
    Dw(mu,ps[0],ps[4]);
    mulr_spinor_add(VOLUME,ps[4],ps[1],-1.0f);
    d=norm_square(VOLUME,1,ps[4]);
-   error(d!=0.0f,1,"main [check1.c]","Action of Dw() depends "
+   error(d>FLT_EPSILON,1,"main [check1.c]","Action of Dw() depends "
          "on the boundary values of the input field");
 
    assign_s2s(VOLUME,ps[1],ps[4]);
    bnd_s2zero(ALL_PTS,ps[4]);
    mulr_spinor_add(VOLUME,ps[4],ps[1],-1.0f);
    d=norm_square(VOLUME,1,ps[4]);
-   error(d!=0.0f,1,"main [check1.c]",
+   error(d>FLT_EPSILON,1,"main [check1.c]",
          "Dw() does not preserve the zero boundary values");
 
    transform_ud();

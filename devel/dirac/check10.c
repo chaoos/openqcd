@@ -3,7 +3,7 @@
 *
 * File check10.c
 *
-* Copyright (C) 2005, 2011-2013, 2016 Martin Luescher
+* Copyright (C) 2021 Roman Gruber
 *
 * This software is distributed under the terms of the GNU General Public
 * License (GPL)
@@ -34,10 +34,13 @@
 
 #define N0 (NPROC0*L0)
 
-static int bc,nfc[8],ofs[8];
+static int bc;
+
+#if (defined _OPENMP)
+
+static int nfc[8],ofs[8];
 static const su3_dble ud0={{0.0}};
 static su3_dble *g,*gbuf;
-
 
 static void pack_gbuf(void)
 {
@@ -107,7 +110,6 @@ static void send_gbuf(void)
    }
 }
 
-
 static void random_g(void)
 {
    int ix,t;
@@ -138,14 +140,12 @@ static void random_g(void)
    }
 }
 
-
 int main(int argc,char *argv[])
 {
    int my_rank,i;
    float mu,d;
    double phi[2],phi_prime[2],theta[3];
    spinor **ps;
-   spinor_dble **psd;
    sw_parms_t swp;
    FILE *flog=NULL;
 
@@ -186,10 +186,6 @@ int main(int argc,char *argv[])
 
    start_ranlux(0,12345);
    geometry();
-   alloc_wsd(5);
-   alloc_ws(5);
-   ps=reserve_ws(5);
-   psd=reserve_wsd(5);
 
    g=amalloc(NSPIN*sizeof(*g),4);
    if (BNDRY!=0)
@@ -213,16 +209,19 @@ int main(int argc,char *argv[])
    assign_ud2u();
    assign_swd2sw();
 
-   for (i=0;i<5;i++)
-   {
-      random_sd(NSPIN,psd[i],1.0);
-      assign_sd2s(NSPIN,psd[i],ps[i]);
-   }
+   alloc_ws(5);
+   ps=reserve_ws(5);
 
-   assign_s2s(VOLUME,ps[0],ps[4]);
-   Dw(mu,ps[0],ps[1]);
-   Dw_openMP(mu,ps[4],ps[2]);
-   mulr_spinor_add(VOLUME,ps[2],ps[1],-1.0f);
+   for (i=0;i<5;i++)
+      random_s(VOLUME,ps[i],1.0f);
+
+   assign_s2s(VOLUME,ps[0],ps[1]);
+
+   Dw(mu,ps[0],ps[2]);
+   d=norm_square(VOLUME,1,ps[4]);
+   Dw_openMP(mu,ps[1],ps[3]);
+   d=norm_square(VOLUME,1,ps[4]);
+   mulr_spinor_add(VOLUME,ps[2],ps[3],-1.0f);
    d=norm_square(VOLUME,1,ps[2]);
 
    if (my_rank==0)
@@ -235,3 +234,41 @@ int main(int argc,char *argv[])
    MPI_Finalize();
    exit(0);
 }
+
+#else
+
+int main(int argc,char *argv[])
+{
+   int my_rank;
+   FILE *flog=NULL;
+
+   MPI_Init(&argc,&argv);
+   MPI_Comm_rank(MPI_COMM_WORLD,&my_rank);
+
+   if (my_rank==0)
+   {
+      flog=freopen("check10.log","w",stdout);
+      printf("\n");
+      printf("Difference between Dw_openMP() and Dw() (random fields)\n");
+      printf("----------------------------------------\n\n");
+
+      printf("%dx%dx%dx%d lattice, ",NPROC0*L0,NPROC1*L1,NPROC2*L2,NPROC3*L3);
+      printf("%dx%dx%dx%d process grid, ",NPROC0,NPROC1,NPROC2,NPROC3);
+      printf("%dx%dx%dx%d local lattice\n\n",L0,L1,L2,L3);
+
+      bc=find_opt(argc,argv,"-bc");
+
+      if (bc!=0)
+         error_root(sscanf(argv[bc+1],"%d",&bc)!=1,1,"main [check10.c]",
+                    "Syntax: check10 [-bc <type>]");
+
+      printf("Nothing to compare unless -fopenmp is set in the Makefile.\n");
+      fclose(flog);
+   }
+
+
+   MPI_Finalize();
+   exit(0);
+}
+
+#endif

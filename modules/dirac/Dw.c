@@ -143,7 +143,7 @@ __asm__ __volatile__ ("vmulps %%ymm15, %%ymm0, %%ymm0 \n\t" \
                       "xmm0", "xmm1", "xmm2")
 
 
-static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
+static void doe(int *piup,int *pidn,su3 *u,spinor *pk)
 {
    spinor *sp,*sm;
 
@@ -166,7 +166,7 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _avx_spinor_split();
    _avx_spinor_unsplit();
-   _avx_spinor_store_up((*rs).s);
+   _avx_spinor_store_up(rs.s);
 
 /******************************** direction 1 *********************************/
 
@@ -183,11 +183,11 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
    _avx_su3_pair_mixed_multiply(u[2],u[3]);
 
    _avx_spinor_split();
-   _avx_spinor_load((*rs).s);
+   _avx_spinor_load(rs.s);
    _avx_weyl_xch_imul(_sse_sgn24);
    _avx_spinor_unsplit();
    _avx_spinor_add();
-   _avx_spinor_store((*rs).s);
+   _avx_spinor_store(rs.s);
 
 /******************************** direction 2 *********************************/
 
@@ -204,12 +204,12 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
    _avx_su3_pair_mixed_multiply(u[4],u[5]);
 
    _avx_spinor_split();
-   _avx_spinor_load((*rs).s);
+   _avx_spinor_load(rs.s);
    _avx_weyl_xch();
    _avx_weyl_mul(_sse_sgn12);
    _avx_spinor_unsplit();
    _avx_spinor_add();
-   _avx_spinor_store((*rs).s);
+   _avx_spinor_store(rs.s);
 
 /******************************** direction 3 *********************************/
 
@@ -220,26 +220,26 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
    _avx_su3_pair_mixed_multiply(u[6],u[7]);
 
    _avx_spinor_split();
-   _avx_spinor_load((*rs).s);
+   _avx_spinor_load(rs.s);
    _avx_weyl_imul(_sse_sgn23);
    _avx_spinor_unsplit();
    _load_cst(coe);
    _avx_spinor_add();
    _mul_cst();
-   _avx_weyl_pair_store12((*rs).w[0],(*rs).w[1]);
+   _avx_weyl_pair_store12(rs.w[0],rs.w[1]);
 
    _avx_zeroupper();
 }
 
 
-static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
+static void deo(int *piup,int *pidn,su3 *u,spinor *pl)
 {
    spinor *sp,*sm;
 
    _load_cst(ceo);
-   _avx_spinor_load((*rs).s);
+   _avx_spinor_load(rs.s);
    _mul_cst();
-   _avx_spinor_store((*rs).s);
+   _avx_spinor_store(rs.s);
 
 /******************************** direction 0 *********************************/
 
@@ -249,7 +249,7 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
    _prefetch_spinor(sm);
    _prefetch_spinor(sp);
 
-   _avx_spinor_load_dup((*rs).s);
+   _avx_spinor_load_dup(rs.s);
    _avx_spinor_mul_up(_avx_sgn_add);
    _avx_spinor_add();
 
@@ -272,7 +272,7 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
    _prefetch_spinor(sm);
    _prefetch_spinor(sp);
 
-   _avx_spinor_load_dup((*rs).s);
+   _avx_spinor_load_dup(rs.s);
    _avx_spinor_xch_imul_up(_avx_sgn_i_add);
    _avx_spinor_add();
 
@@ -295,7 +295,7 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
    _prefetch_spinor(sm);
    _prefetch_spinor(sp);
 
-   _avx_spinor_load_dup((*rs).s);
+   _avx_spinor_load_dup(rs.s);
    _avx_spinor_xch_up();
    _avx_spinor_mul_up(_avx_sgn_addsub);
    _avx_spinor_add();
@@ -320,7 +320,7 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
    _prefetch_spinor(sm);
    _prefetch_spinor(sp);
 
-   _avx_spinor_load_dup((*rs).s);
+   _avx_spinor_load_dup(rs.s);
    _avx_spinor_imul_up(_avx_sgn_i_addsub);
    _avx_spinor_add();
 
@@ -369,7 +369,7 @@ __asm__ __volatile__ ("mulps %%xmm15, %%xmm3 \n\t" \
                       "xmm3", "xmm4", "xmm5")
 
 
-static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
+static void doe(int *piup,int *pidn,su3 *u,spinor *pk)
 {
    spinor *sp,*sm;
 
@@ -388,8 +388,8 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    _prefetch_spinor(sp);
    _sse_su3_multiply(*u);
 
-   _sse_weyl_store_up((*rs).w[0]);
-   _sse_weyl_store_up((*rs).w[1]);
+   _sse_weyl_store_up(rs.w[0]);
+   _sse_weyl_store_up(rs.w[1]);
 
 /******************************* direction -0 *********************************/
 
@@ -404,13 +404,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    _prefetch_spinor(sm);
    _sse_su3_inverse_multiply(*u);
 
-   _sse_weyl_load((*rs).w[0]);
+   _sse_weyl_load(rs.w[0]);
    _sse_vector_add();
-   _sse_weyl_store((*rs).w[0]);
+   _sse_weyl_store(rs.w[0]);
 
-   _sse_weyl_load((*rs).w[1]);
+   _sse_weyl_load(rs.w[1]);
    _sse_vector_sub();
-   _sse_weyl_store((*rs).w[1]);
+   _sse_weyl_store(rs.w[1]);
 
 /******************************* direction +1 *********************************/
 
@@ -423,13 +423,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    u+=1;
    _sse_su3_multiply(*u);
 
-   _sse_weyl_load((*rs).w[0]);
+   _sse_weyl_load(rs.w[0]);
    _sse_vector_add();
-   _sse_weyl_store((*rs).w[0]);
+   _sse_weyl_store(rs.w[0]);
 
-   _sse_weyl_load((*rs).w[1]);
+   _sse_weyl_load(rs.w[1]);
    _sse_vector_xch_i_sub();
-   _sse_weyl_store((*rs).w[1]);
+   _sse_weyl_store(rs.w[1]);
 
 /******************************* direction -1 *********************************/
 
@@ -444,13 +444,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    _prefetch_spinor(sm);
    _sse_su3_inverse_multiply(*u);
 
-   _sse_weyl_load((*rs).w[0]);
+   _sse_weyl_load(rs.w[0]);
    _sse_vector_add();
-   _sse_weyl_store((*rs).w[0]);
+   _sse_weyl_store(rs.w[0]);
 
-   _sse_weyl_load((*rs).w[1]);
+   _sse_weyl_load(rs.w[1]);
    _sse_vector_xch_i_add();
-   _sse_weyl_store((*rs).w[1]);
+   _sse_weyl_store(rs.w[1]);
 
 /******************************* direction +2 *********************************/
 
@@ -463,14 +463,14 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    _sse_su3_multiply(*u);
    sp=pk+(*(piup));
    _prefetch_spinor(sp);
-   _sse_weyl_load((*rs).w[0]);
+   _sse_weyl_load(rs.w[0]);
    _sse_vector_add();
-   _sse_weyl_store((*rs).w[0]);
+   _sse_weyl_store(rs.w[0]);
 
-   _sse_weyl_load((*rs).w[1]);
+   _sse_weyl_load(rs.w[1]);
    _sse_vector_xch();
    _sse_vector_subadd();
-   _sse_weyl_store((*rs).w[1]);
+   _sse_weyl_store(rs.w[1]);
 
 /******************************* direction -2 *********************************/
 
@@ -485,14 +485,14 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    _prefetch_spinor(sm);
    _sse_su3_inverse_multiply(*u);
 
-   _sse_weyl_load((*rs).w[0]);
+   _sse_weyl_load(rs.w[0]);
    _sse_vector_add();
-   _sse_weyl_store((*rs).w[0]);
+   _sse_weyl_store(rs.w[0]);
 
-   _sse_weyl_load((*rs).w[1]);
+   _sse_weyl_load(rs.w[1]);
    _sse_vector_xch();
    _sse_vector_addsub();
-   _sse_weyl_store((*rs).w[1]);
+   _sse_weyl_store(rs.w[1]);
 
 /******************************* direction +3 *********************************/
 
@@ -503,13 +503,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    u+=1;
    _sse_su3_multiply(*u);
 
-   _sse_weyl_load((*rs).w[0]);
+   _sse_weyl_load(rs.w[0]);
    _sse_vector_add();
-   _sse_weyl_store((*rs).w[0]);
+   _sse_weyl_store(rs.w[0]);
 
-   _sse_weyl_load((*rs).w[1]);
+   _sse_weyl_load(rs.w[1]);
    _sse_vector_i_subadd();
-   _sse_weyl_store((*rs).w[1]);
+   _sse_weyl_store(rs.w[1]);
 
 /******************************* direction -3 *********************************/
 
@@ -523,19 +523,19 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t *rs)
    _sse_su3_inverse_multiply(*u);
 
    _load_cst(coe);
-   _sse_weyl_load((*rs).w[0]);
+   _sse_weyl_load(rs.w[0]);
    _sse_vector_add();
    _mul_cst();
-   _sse_pair_store((*rs).s.c1,(*rs).s.c2);
+   _sse_pair_store(rs.s.c1,rs.s.c2);
 
-   _sse_weyl_load((*rs).w[1]);
+   _sse_weyl_load(rs.w[1]);
    _sse_vector_i_addsub();
    _mul_cst();
-   _sse_pair_store((*rs).s.c3,(*rs).s.c4);
+   _sse_pair_store(rs.s.c3,rs.s.c4);
 }
 
 
-static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
+static void deo(int *piup,int *pidn,su3 *u,spinor *pl)
 {
    spinor *sp,*sm;
 
@@ -545,12 +545,12 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
    _prefetch_spinor(sp);
 
    _load_cst(ceo);
-   _sse_pair_load((*rs).s.c1,(*rs).s.c2);
-   _sse_pair_load_up((*rs).s.c3,(*rs).s.c4);
+   _sse_pair_load(rs.s.c1,rs.s.c2);
+   _sse_pair_load_up(rs.s.c3,rs.s.c4);
    _mul_cst();
    _mul_cst_up();
-   _sse_weyl_store((*rs).w[0]);
-   _sse_weyl_store_up((*rs).w[1]);
+   _sse_weyl_store(rs.w[0]);
+   _sse_weyl_store_up(rs.w[1]);
 
    sm=pl+(*(pidn++));
    _prefetch_spinor(sm);
@@ -567,8 +567,8 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
 
 /******************************* direction -0 *********************************/
 
-   _sse_weyl_load((*rs).w[0]);
-   _sse_weyl_load_up((*rs).w[1]);
+   _sse_weyl_load(rs.w[0]);
+   _sse_weyl_load_up(rs.w[1]);
 
    sp=pl+(*(piup++));
    _prefetch_spinor(sp);
@@ -586,8 +586,8 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
 
 /******************************* direction +1 *********************************/
 
-   _sse_weyl_load((*rs).w[0]);
-   _sse_weyl_load_up((*rs).w[1]);
+   _sse_weyl_load(rs.w[0]);
+   _sse_weyl_load_up(rs.w[1]);
 
    sm=pl+(*(pidn++));
    _prefetch_spinor(sm);
@@ -605,8 +605,8 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
 
 /******************************* direction -1 *********************************/
 
-   _sse_weyl_load((*rs).w[0]);
-   _sse_weyl_load_up((*rs).w[1]);
+   _sse_weyl_load(rs.w[0]);
+   _sse_weyl_load_up(rs.w[1]);
 
    sp=pl+(*(piup++));
    _prefetch_spinor(sp);
@@ -624,8 +624,8 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
 
 /******************************* direction +2 *********************************/
 
-   _sse_weyl_load((*rs).w[0]);
-   _sse_weyl_load_up((*rs).w[1]);
+   _sse_weyl_load(rs.w[0]);
+   _sse_weyl_load_up(rs.w[1]);
 
    sm=pl+(*(pidn++));
    _prefetch_spinor(sm);
@@ -645,8 +645,8 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
 
 /******************************* direction -2 *********************************/
 
-   _sse_weyl_load((*rs).w[0]);
-   _sse_weyl_load_up((*rs).w[1]);
+   _sse_weyl_load(rs.w[0]);
+   _sse_weyl_load_up(rs.w[1]);
 
    sp=pl+(*(piup));
    _prefetch_spinor(sp);
@@ -666,8 +666,8 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
 
 /******************************* direction +3 *********************************/
 
-   _sse_weyl_load((*rs).w[0]);
-   _sse_weyl_load_up((*rs).w[1]);
+   _sse_weyl_load(rs.w[0]);
+   _sse_weyl_load_up(rs.w[1]);
 
    sm=pl+(*(pidn));
    _prefetch_spinor(sm);
@@ -685,8 +685,8 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
 
 /******************************* direction -3 *********************************/
 
-   _sse_weyl_load((*rs).w[0]);
-   _sse_weyl_load_up((*rs).w[1]);
+   _sse_weyl_load(rs.w[0]);
+   _sse_weyl_load_up(rs.w[1]);
 
    _sse_vector_i_addsub();
    u+=1;
@@ -712,7 +712,7 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t* rs)
    (r).c3.im*=(c)
 
 
-static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
+static void doe(int *piup,int *pidn,su3 *u,spinor *pk)
 {
    spinor *sp,*sm;
    su3_vector psi,chi;
@@ -722,12 +722,12 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
    sp=pk+(*(piup++));
 
    _vector_add(psi,(*sp).c1,(*sp).c3);
-   _su3_multiply((*rs).s.c1,*u,psi);
-   (*rs).s.c3=(*rs).s.c1;
+   _su3_multiply(rs.s.c1,*u,psi);
+   rs.s.c3=rs.s.c1;
 
    _vector_add(psi,(*sp).c2,(*sp).c4);
-   _su3_multiply((*rs).s.c2,*u,psi);
-   (*rs).s.c4=(*rs).s.c2;
+   _su3_multiply(rs.s.c2,*u,psi);
+   rs.s.c4=rs.s.c2;
 
 /******************************* direction -0 *********************************/
 
@@ -736,13 +736,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _vector_sub(psi,(*sm).c1,(*sm).c3);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_sub_assign((*rs).s.c3,chi);
+   _vector_add_assign(rs.s.c1,chi);
+   _vector_sub_assign(rs.s.c3,chi);
 
    _vector_sub(psi,(*sm).c2,(*sm).c4);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_sub_assign((*rs).s.c4,chi);
+   _vector_add_assign(rs.s.c2,chi);
+   _vector_sub_assign(rs.s.c4,chi);
 
 /******************************* direction +1 *********************************/
 
@@ -751,13 +751,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _vector_i_add(psi,(*sp).c1,(*sp).c4);
    _su3_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_sub_assign((*rs).s.c4,chi);
+   _vector_add_assign(rs.s.c1,chi);
+   _vector_i_sub_assign(rs.s.c4,chi);
 
    _vector_i_add(psi,(*sp).c2,(*sp).c3);
    _su3_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_sub_assign((*rs).s.c3,chi);
+   _vector_add_assign(rs.s.c2,chi);
+   _vector_i_sub_assign(rs.s.c3,chi);
 
 /******************************* direction -1 *********************************/
 
@@ -766,13 +766,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _vector_i_sub(psi,(*sm).c1,(*sm).c4);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_add_assign((*rs).s.c4,chi);
+   _vector_add_assign(rs.s.c1,chi);
+   _vector_i_add_assign(rs.s.c4,chi);
 
    _vector_i_sub(psi,(*sm).c2,(*sm).c3);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_add_assign((*rs).s.c3,chi);
+   _vector_add_assign(rs.s.c2,chi);
+   _vector_i_add_assign(rs.s.c3,chi);
 
 /******************************* direction +2 *********************************/
 
@@ -781,13 +781,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _vector_add(psi,(*sp).c1,(*sp).c4);
    _su3_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_add_assign((*rs).s.c4,chi);
+   _vector_add_assign(rs.s.c1,chi);
+   _vector_add_assign(rs.s.c4,chi);
 
    _vector_sub(psi,(*sp).c2,(*sp).c3);
    _su3_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_sub_assign((*rs).s.c3,chi);
+   _vector_add_assign(rs.s.c2,chi);
+   _vector_sub_assign(rs.s.c3,chi);
 
 /******************************* direction -2 *********************************/
 
@@ -796,13 +796,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _vector_sub(psi,(*sm).c1,(*sm).c4);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_sub_assign((*rs).s.c4,chi);
+   _vector_add_assign(rs.s.c1,chi);
+   _vector_sub_assign(rs.s.c4,chi);
 
    _vector_add(psi,(*sm).c2,(*sm).c3);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_add_assign((*rs).s.c3,chi);
+   _vector_add_assign(rs.s.c2,chi);
+   _vector_add_assign(rs.s.c3,chi);
 
 /******************************* direction +3 *********************************/
 
@@ -811,13 +811,13 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _vector_i_add(psi,(*sp).c1,(*sp).c3);
    _su3_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_sub_assign((*rs).s.c3,chi);
+   _vector_add_assign(rs.s.c1,chi);
+   _vector_i_sub_assign(rs.s.c3,chi);
 
    _vector_i_sub(psi,(*sp).c2,(*sp).c4);
    _su3_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_add_assign((*rs).s.c4,chi);
+   _vector_add_assign(rs.s.c2,chi);
+   _vector_i_add_assign(rs.s.c4,chi);
 
 /******************************* direction -3 *********************************/
 
@@ -826,172 +826,41 @@ static void doe(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
 
    _vector_i_sub(psi,(*sm).c1,(*sm).c3);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_add_assign((*rs).s.c3,chi);
+   _vector_add_assign(rs.s.c1,chi);
+   _vector_i_add_assign(rs.s.c3,chi);
 
    _vector_i_add(psi,(*sm).c2,(*sm).c4);
    _su3_inverse_multiply(chi,*u,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_sub_assign((*rs).s.c4,chi);
+   _vector_add_assign(rs.s.c2,chi);
+   _vector_i_sub_assign(rs.s.c4,chi);
 
-   _vector_mul_assign((*rs).s.c1,coe);
-   _vector_mul_assign((*rs).s.c2,coe);
-   _vector_mul_assign((*rs).s.c3,coe);
-   _vector_mul_assign((*rs).s.c4,coe);
+   _vector_mul_assign(rs.s.c1,coe);
+   _vector_mul_assign(rs.s.c2,coe);
+   _vector_mul_assign(rs.s.c3,coe);
+   _vector_mul_assign(rs.s.c4,coe);
 }
 
 
-static void doe_openMP(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
-{
-   spinor *sp,*sm;
-   su3_vector psi,chi;
-   su3 *ui;
-
-/******************************* direction +0 *********************************/
-
-   sp=pk+(*(piup++));
-   ui=u;
-
-   _vector_add(psi,(*sp).c1,(*sp).c3);
-   _su3_multiply((*rs).s.c1,*u,psi);
-   (*rs).s.c3=(*rs).s.c1;
-
-   _vector_add(psi,(*sp).c2,(*sp).c4);
-   _su3_multiply((*rs).s.c2,*u,psi);
-   (*rs).s.c4=(*rs).s.c2;
-
-/******************************* direction -0 *********************************/
-
-   sm=pk+(*(pidn++));
-   ui=u+1;
-
-   _vector_sub(psi,(*sm).c1,(*sm).c3);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_sub_assign((*rs).s.c3,chi);
-
-   _vector_sub(psi,(*sm).c2,(*sm).c4);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_sub_assign((*rs).s.c4,chi);
-
-/******************************* direction +1 *********************************/
-
-   sp=pk+(*(piup++));
-   ui=u+2;
-
-   _vector_i_add(psi,(*sp).c1,(*sp).c4);
-   _su3_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_sub_assign((*rs).s.c4,chi);
-
-   _vector_i_add(psi,(*sp).c2,(*sp).c3);
-   _su3_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_sub_assign((*rs).s.c3,chi);
-
-/******************************* direction -1 *********************************/
-
-   sm=pk+(*(pidn++));
-   ui=u+3;
-
-   _vector_i_sub(psi,(*sm).c1,(*sm).c4);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_add_assign((*rs).s.c4,chi);
-
-   _vector_i_sub(psi,(*sm).c2,(*sm).c3);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_add_assign((*rs).s.c3,chi);
-
-/******************************* direction +2 *********************************/
-
-   sp=pk+(*(piup++));
-   ui=u+4;
-
-   _vector_add(psi,(*sp).c1,(*sp).c4);
-   _su3_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_add_assign((*rs).s.c4,chi);
-
-   _vector_sub(psi,(*sp).c2,(*sp).c3);
-   _su3_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_sub_assign((*rs).s.c3,chi);
-
-/******************************* direction -2 *********************************/
-
-   sm=pk+(*(pidn++));
-   ui=u+5;
-
-   _vector_sub(psi,(*sm).c1,(*sm).c4);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_sub_assign((*rs).s.c4,chi);
-
-   _vector_add(psi,(*sm).c2,(*sm).c3);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_add_assign((*rs).s.c3,chi);
-
-/******************************* direction +3 *********************************/
-
-   sp=pk+(*(piup));
-   ui=u+6;
-
-   _vector_i_add(psi,(*sp).c1,(*sp).c3);
-   _su3_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_sub_assign((*rs).s.c3,chi);
-
-   _vector_i_sub(psi,(*sp).c2,(*sp).c4);
-   _su3_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_add_assign((*rs).s.c4,chi);
-
-/******************************* direction -3 *********************************/
-
-   sm=pk+(*(pidn));
-   ui=u+7;
-
-   _vector_i_sub(psi,(*sm).c1,(*sm).c3);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c1,chi);
-   _vector_i_add_assign((*rs).s.c3,chi);
-
-   _vector_i_add(psi,(*sm).c2,(*sm).c4);
-   _su3_inverse_multiply(chi,*ui,psi);
-   _vector_add_assign((*rs).s.c2,chi);
-   _vector_i_sub_assign((*rs).s.c4,chi);
-
-   _vector_mul_assign((*rs).s.c1,coe);
-   _vector_mul_assign((*rs).s.c2,coe);
-   _vector_mul_assign((*rs).s.c3,coe);
-   _vector_mul_assign((*rs).s.c4,coe);
-}
-
-
-static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
+static void deo(int *piup,int *pidn,su3 *u,spinor *pl)
 {
    spinor *sp,*sm;
    su3_vector psi,chi;
 
-   _vector_mul_assign((*rs).s.c1,ceo);
-   _vector_mul_assign((*rs).s.c2,ceo);
-   _vector_mul_assign((*rs).s.c3,ceo);
-   _vector_mul_assign((*rs).s.c4,ceo);
+   _vector_mul_assign(rs.s.c1,ceo);
+   _vector_mul_assign(rs.s.c2,ceo);
+   _vector_mul_assign(rs.s.c3,ceo);
+   _vector_mul_assign(rs.s.c4,ceo);
 
 /******************************* direction +0 *********************************/
 
    sp=pl+(*(piup++));
 
-   _vector_sub(psi,(*rs).s.c1,(*rs).s.c3);
+   _vector_sub(psi,rs.s.c1,rs.s.c3);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c1,chi);
    _vector_sub_assign((*sp).c3,chi);
 
-   _vector_sub(psi,(*rs).s.c2,(*rs).s.c4);
+   _vector_sub(psi,rs.s.c2,rs.s.c4);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c2,chi);
    _vector_sub_assign((*sp).c4,chi);
@@ -1001,12 +870,12 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
    sm=pl+(*(pidn++));
    u+=1;
 
-   _vector_add(psi,(*rs).s.c1,(*rs).s.c3);
+   _vector_add(psi,rs.s.c1,rs.s.c3);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c1,chi);
    _vector_add_assign((*sm).c3,chi);
 
-   _vector_add(psi,(*rs).s.c2,(*rs).s.c4);
+   _vector_add(psi,rs.s.c2,rs.s.c4);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c2,chi);
    _vector_add_assign((*sm).c4,chi);
@@ -1016,12 +885,12 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
    sp=pl+(*(piup++));
    u+=1;
 
-   _vector_i_sub(psi,(*rs).s.c1,(*rs).s.c4);
+   _vector_i_sub(psi,rs.s.c1,rs.s.c4);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c1,chi);
    _vector_i_add_assign((*sp).c4,chi);
 
-   _vector_i_sub(psi,(*rs).s.c2,(*rs).s.c3);
+   _vector_i_sub(psi,rs.s.c2,rs.s.c3);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c2,chi);
    _vector_i_add_assign((*sp).c3,chi);
@@ -1031,12 +900,12 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
    sm=pl+(*(pidn++));
    u+=1;
 
-   _vector_i_add(psi,(*rs).s.c1,(*rs).s.c4);
+   _vector_i_add(psi,rs.s.c1,rs.s.c4);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c1,chi);
    _vector_i_sub_assign((*sm).c4,chi);
 
-   _vector_i_add(psi,(*rs).s.c2,(*rs).s.c3);
+   _vector_i_add(psi,rs.s.c2,rs.s.c3);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c2,chi);
    _vector_i_sub_assign((*sm).c3,chi);
@@ -1046,12 +915,12 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
    sp=pl+(*(piup++));
    u+=1;
 
-   _vector_sub(psi,(*rs).s.c1,(*rs).s.c4);
+   _vector_sub(psi,rs.s.c1,rs.s.c4);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c1,chi);
    _vector_sub_assign((*sp).c4,chi);
 
-   _vector_add(psi,(*rs).s.c2,(*rs).s.c3);
+   _vector_add(psi,rs.s.c2,rs.s.c3);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c2,chi);
    _vector_add_assign((*sp).c3,chi);
@@ -1061,12 +930,12 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
    sm=pl+(*(pidn++));
    u+=1;
 
-   _vector_add(psi,(*rs).s.c1,(*rs).s.c4);
+   _vector_add(psi,rs.s.c1,rs.s.c4);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c1,chi);
    _vector_add_assign((*sm).c4,chi);
 
-   _vector_sub(psi,(*rs).s.c2,(*rs).s.c3);
+   _vector_sub(psi,rs.s.c2,rs.s.c3);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c2,chi);
    _vector_sub_assign((*sm).c3,chi);
@@ -1076,12 +945,12 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
    sp=pl+(*(piup));
    u+=1;
 
-   _vector_i_sub(psi,(*rs).s.c1,(*rs).s.c3);
+   _vector_i_sub(psi,rs.s.c1,rs.s.c3);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c1,chi);
    _vector_i_add_assign((*sp).c3,chi);
 
-   _vector_i_add(psi,(*rs).s.c2,(*rs).s.c4);
+   _vector_i_add(psi,rs.s.c2,rs.s.c4);
    _su3_inverse_multiply(chi,*u,psi);
    _vector_add_assign((*sp).c2,chi);
    _vector_i_sub_assign((*sp).c4,chi);
@@ -1091,15 +960,386 @@ static void deo(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs)
    sm=pl+(*(pidn));
    u+=1;
 
-   _vector_i_add(psi,(*rs).s.c1,(*rs).s.c3);
+   _vector_i_add(psi,rs.s.c1,rs.s.c3);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c1,chi);
    _vector_i_sub_assign((*sm).c3,chi);
 
-   _vector_i_sub(psi,(*rs).s.c2,(*rs).s.c4);
+   _vector_i_sub(psi,rs.s.c2,rs.s.c4);
    _su3_multiply(chi,*u,psi);
    _vector_add_assign((*sm).c2,chi);
    _vector_i_add_assign((*sm).c4,chi);
+}
+
+
+#endif
+
+#if (defined _OPENMP)
+#include "omp.h"
+
+#define _vector_mul_assign(r,c) \
+   (r).c1.re*=(c); \
+   (r).c1.im*=(c); \
+   (r).c2.re*=(c); \
+   (r).c2.im*=(c); \
+   (r).c3.re*=(c); \
+   (r).c3.im*=(c)
+
+static void doe_omp(int *piup,int *pidn,su3 *u,spinor *pk, spin_t* rs)
+{
+   spinor *sp,*sm;
+   su3_vector psi,chi;
+
+/******************************* direction +0 *********************************/
+
+   sp=pk+(*(piup++));
+
+   _vector_add(psi,(*sp).c1,(*sp).c3);
+   _su3_multiply((*rs).s.c1,*u,psi);
+   (*rs).s.c3=(*rs).s.c1;
+
+   _vector_add(psi,(*sp).c2,(*sp).c4);
+   _su3_multiply((*rs).s.c2,*u,psi);
+   (*rs).s.c4=(*rs).s.c2;
+
+/******************************* direction -0 *********************************/
+
+   sm=pk+(*(pidn++));
+   u+=1;
+
+   _vector_sub(psi,(*sm).c1,(*sm).c3);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_sub_assign((*rs).s.c3,chi);
+
+   _vector_sub(psi,(*sm).c2,(*sm).c4);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_sub_assign((*rs).s.c4,chi);
+
+/******************************* direction +1 *********************************/
+
+   sp=pk+(*(piup++));
+   u+=1;
+
+   _vector_i_add(psi,(*sp).c1,(*sp).c4);
+   _su3_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_sub_assign((*rs).s.c4,chi);
+
+   _vector_i_add(psi,(*sp).c2,(*sp).c3);
+   _su3_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_sub_assign((*rs).s.c3,chi);
+
+/******************************* direction -1 *********************************/
+
+   sm=pk+(*(pidn++));
+   u+=1;
+
+   _vector_i_sub(psi,(*sm).c1,(*sm).c4);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_add_assign((*rs).s.c4,chi);
+
+   _vector_i_sub(psi,(*sm).c2,(*sm).c3);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_add_assign((*rs).s.c3,chi);
+
+/******************************* direction +2 *********************************/
+
+   sp=pk+(*(piup++));
+   u+=1;
+
+   _vector_add(psi,(*sp).c1,(*sp).c4);
+   _su3_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_add_assign((*rs).s.c4,chi);
+
+   _vector_sub(psi,(*sp).c2,(*sp).c3);
+   _su3_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_sub_assign((*rs).s.c3,chi);
+
+/******************************* direction -2 *********************************/
+
+   sm=pk+(*(pidn++));
+   u+=1;
+
+   _vector_sub(psi,(*sm).c1,(*sm).c4);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_sub_assign((*rs).s.c4,chi);
+
+   _vector_add(psi,(*sm).c2,(*sm).c3);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_add_assign((*rs).s.c3,chi);
+
+/******************************* direction +3 *********************************/
+
+   sp=pk+(*(piup));
+   u+=1;
+
+   _vector_i_add(psi,(*sp).c1,(*sp).c3);
+   _su3_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_sub_assign((*rs).s.c3,chi);
+
+   _vector_i_sub(psi,(*sp).c2,(*sp).c4);
+   _su3_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_add_assign((*rs).s.c4,chi);
+
+/******************************* direction -3 *********************************/
+
+   sm=pk+(*(pidn));
+   u+=1;
+
+   _vector_i_sub(psi,(*sm).c1,(*sm).c3);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c1,chi);
+   _vector_i_add_assign((*rs).s.c3,chi);
+
+   _vector_i_add(psi,(*sm).c2,(*sm).c4);
+   _su3_inverse_multiply(chi,*u,psi);
+   _vector_add_assign((*rs).s.c2,chi);
+   _vector_i_sub_assign((*rs).s.c4,chi);
+
+   _vector_mul_assign((*rs).s.c1,coe);
+   _vector_mul_assign((*rs).s.c2,coe);
+   _vector_mul_assign((*rs).s.c3,coe);
+   _vector_mul_assign((*rs).s.c4,coe);
+}
+
+
+static void deo_omp(int *piup,int *pidn,su3 *u,spinor *pl, spin_t *rs, omp_lock_t *lock)
+{
+   spinor *sp,*sm;
+   su3_vector psi1,chi1,psi2,chi2;
+   su3 *ui;
+   int offset;
+
+   _vector_mul_assign((*rs).s.c1,ceo);
+   _vector_mul_assign((*rs).s.c2,ceo);
+   _vector_mul_assign((*rs).s.c3,ceo);
+   _vector_mul_assign((*rs).s.c4,ceo);
+
+   offset=(*(piup));
+   sp=pl+offset;
+   ui=u;
+
+   _vector_sub(psi1,(*rs).s.c1,(*rs).s.c3);
+   _su3_inverse_multiply(chi1,*ui,psi1);
+   _vector_sub(psi2,(*rs).s.c2,(*rs).s.c4);
+   _su3_inverse_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sp).c1,chi1);
+   _vector_sub_assign((*sp).c3,chi1);
+   _vector_add_assign((*sp).c2,chi2);
+   _vector_sub_assign((*sp).c4,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+   offset=(*(piup+1));
+   sp=pl+offset;
+   ui=u+2;
+
+   _vector_i_sub(psi1,(*rs).s.c1,(*rs).s.c4);
+   _su3_inverse_multiply(chi1,*ui,psi1);
+   _vector_i_sub(psi2,(*rs).s.c2,(*rs).s.c3);
+   _su3_inverse_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sp).c1,chi1);
+   _vector_i_add_assign((*sp).c4,chi1);
+   _vector_add_assign((*sp).c2,chi2);
+   _vector_i_add_assign((*sp).c3,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+   offset=(*(piup+2));
+   sp=pl+offset;
+   ui=u+4;
+
+   _vector_sub(psi1,(*rs).s.c1,(*rs).s.c4);
+   _su3_inverse_multiply(chi1,*ui,psi1);
+   _vector_add(psi2,(*rs).s.c2,(*rs).s.c3);
+   _su3_inverse_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sp).c1,chi1);
+   _vector_sub_assign((*sp).c4,chi1);
+   _vector_add_assign((*sp).c2,chi2);
+   _vector_add_assign((*sp).c3,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+   offset=(*(piup+3));
+   sp=pl+offset;
+   ui=u+6;
+
+   _vector_i_sub(psi1,(*rs).s.c1,(*rs).s.c3);
+   _su3_inverse_multiply(chi1,*ui,psi1);
+   _vector_i_add(psi2,(*rs).s.c2,(*rs).s.c4);
+   _su3_inverse_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sp).c1,chi1);
+   _vector_i_add_assign((*sp).c3,chi1);
+   _vector_add_assign((*sp).c2,chi2);
+   _vector_i_sub_assign((*sp).c4,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+   offset=(*(pidn));
+   sm=pl+offset;
+   ui=u+1;
+
+   _vector_add(psi1,(*rs).s.c1,(*rs).s.c3);
+   _su3_multiply(chi1,*ui,psi1);
+   _vector_add(psi2,(*rs).s.c2,(*rs).s.c4);
+   _su3_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sm).c1,chi1);
+   _vector_add_assign((*sm).c3,chi1);
+   _vector_add_assign((*sm).c2,chi2);
+   _vector_add_assign((*sm).c4,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+   offset=(*(pidn+1));
+   sm=pl+offset;
+   ui=u+3;
+
+   _vector_i_add(psi1,(*rs).s.c1,(*rs).s.c4);
+   _su3_multiply(chi1,*ui,psi1);
+   _vector_i_add(psi2,(*rs).s.c2,(*rs).s.c3);
+   _su3_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sm).c1,chi1);
+   _vector_i_sub_assign((*sm).c4,chi1);
+   _vector_add_assign((*sm).c2,chi2);
+   _vector_i_sub_assign((*sm).c3,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+   offset=(*(pidn+2));
+   sm=pl+offset;
+   ui=u+5;
+
+   _vector_add(psi1,(*rs).s.c1,(*rs).s.c4);
+   _su3_multiply(chi1,*ui,psi1);
+   _vector_sub(psi2,(*rs).s.c2,(*rs).s.c3);
+   _su3_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sm).c1,chi1);
+   _vector_add_assign((*sm).c4,chi1);
+   _vector_add_assign((*sm).c2,chi2);
+   _vector_sub_assign((*sm).c3,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+   offset=(*(pidn+3));
+   sm=pl+offset;
+   ui=u+7;
+
+   _vector_i_add(psi1,(*rs).s.c1,(*rs).s.c3);
+   _su3_multiply(chi1,*ui,psi1);
+   _vector_i_sub(psi2,(*rs).s.c2,(*rs).s.c4);
+   _su3_multiply(chi2,*ui,psi2);
+
+   omp_set_lock(&(lock[offset]));
+   _vector_add_assign((*sm).c1,chi1);
+   _vector_i_sub_assign((*sm).c3,chi1);
+   _vector_add_assign((*sm).c2,chi2);
+   _vector_i_add_assign((*sm).c4,chi2);
+   omp_unset_lock(&(lock[offset]));
+
+}
+
+
+/* locks */
+void Dw_openMP(float mu,spinor *s,spinor *r)
+{
+   int bc,t;
+   int *piup,*pidn;
+   int i;
+   su3 *u;
+   pauli *m;
+   tm_parms_t tm;
+   omp_lock_t lock[2*VOLUME];
+
+   cps_int_bnd(0x1,s);
+   m=swfld_openMP();
+   apply_sw_openMP(VOLUME/2,mu,m,s,r);
+   set_s2zero(BNDRY/2,r+VOLUME);
+
+   tm=tm_parms();
+   if (tm.eoflg==1)
+      mu=0.0f;
+
+   coe=-0.5f;
+   ceo=-0.5f;
+   bc=bc_type();
+   piup=iup[VOLUME/2];
+   pidn=idn[VOLUME/2];
+
+   m+=VOLUME;
+   u=ufld_openMP();
+
+   #pragma omp parallel for schedule(runtime) default(none) shared(lock) private(i)
+   for (i=0; i<2*VOLUME; i++)
+      omp_init_lock(&(lock[i]));
+
+   if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
+   {
+      #pragma omp parallel for schedule(runtime) default(none) shared(bc,mu,m,u,piup,pidn,s,r,lock) private(t,i,rs)
+      for (i=0;i<VOLUME/2;i++)
+      {
+         t=global_time(VOLUME/2+i);
+         if ((t>0)&&((t<(N0-1))||(bc!=0)))
+         {
+            doe_omp((piup+4*i),(pidn+4*i),u+8*i,s,&rs);
+            mul_pauli2(mu,m+2*i,s+VOLUME/2+i,r+VOLUME/2+i);
+
+            /* r += ... */
+            _vector_add_assign((*(r+VOLUME/2+i)).c1,rs.s.c1);
+            _vector_add_assign((*(r+VOLUME/2+i)).c2,rs.s.c2);
+            _vector_add_assign((*(r+VOLUME/2+i)).c3,rs.s.c3);
+            _vector_add_assign((*(r+VOLUME/2+i)).c4,rs.s.c4);
+
+            rs=*(spin_t*)(s+VOLUME/2+i);
+            deo_omp((piup+4*i),(pidn+4*i),u+8*i,r,&rs,lock);
+         }
+         else
+         {
+            *(s+VOLUME/2+i)=s0;
+            *(r+VOLUME/2+i)=s0;
+         }
+      }
+   }
+   else
+   {
+      #pragma omp parallel for schedule(runtime) default(none) shared(mu,m,u,piup,pidn,s,r,lock) private(t,i,rs)
+      for (i=0;i<VOLUME/2;i++)
+      {
+         doe_omp((piup+4*i),(pidn+4*i),u+8*i,s,&rs);
+         mul_pauli2(mu,m+2*i,s+VOLUME/2+i,r+VOLUME/2+i);
+
+         _vector_add_assign((*(r+VOLUME/2+i)).c1,rs.s.c1);
+         _vector_add_assign((*(r+VOLUME/2+i)).c2,rs.s.c2);
+         _vector_add_assign((*(r+VOLUME/2+i)).c3,rs.s.c3);
+         _vector_add_assign((*(r+VOLUME/2+i)).c4,rs.s.c4);
+
+         rs=*(spin_t*)(s+VOLUME/2+i);
+         deo_omp((piup+4*i),(pidn+4*i),u+8*i,r,&rs,lock);
+      }
+   }
+
+   #pragma omp parallel for schedule(runtime) default(none) shared(lock) private(i)
+   for (i=0; i<2*VOLUME; i++)
+      omp_destroy_lock(&(lock[i]));
+
+   cps_ext_bnd(0x1,r);
 }
 
 #endif
@@ -1144,7 +1384,7 @@ void Dw(float mu,spinor *s,spinor *r)
 
          if ((t>0)&&((t<(N0-1))||(bc!=0)))
          {
-            doe(piup,pidn,u,s,&rs);
+            doe(piup,pidn,u,s);
 
             mul_pauli2(mu,m,&((*so).s),&((*ro).s));
 
@@ -1154,7 +1394,7 @@ void Dw(float mu,spinor *s,spinor *r)
             _vector_add_assign((*ro).s.c4,rs.s.c4);
             rs=(*so);
 
-            deo(piup,pidn,u,r,&rs);
+            deo(piup,pidn,u,r);
          }
          else
          {
@@ -1173,7 +1413,7 @@ void Dw(float mu,spinor *s,spinor *r)
    {
       for (;u<um;u+=8)
       {
-         doe(piup,pidn,u,s,&rs);
+         doe(piup,pidn,u,s);
 
          mul_pauli2(mu,m,&((*so).s),&((*ro).s));
 
@@ -1183,7 +1423,7 @@ void Dw(float mu,spinor *s,spinor *r)
          _vector_add_assign((*ro).s.c4,rs.s.c4);
          rs=(*so);
 
-         deo(piup,pidn,u,r,&rs);
+         deo(piup,pidn,u,r);
 
          piup+=4;
          pidn+=4;
@@ -1191,111 +1431,6 @@ void Dw(float mu,spinor *s,spinor *r)
          ro+=1;
          m+=2;
       }
-   }
-
-   cps_ext_bnd(0x1,r);
-}
-
-
-void Dw_openMP(float mu,spinor *s,spinor *r)
-{
-   int bc,t;
-   int *piup,*pidn;
-   int idx;
-   su3 *u;
-   pauli *m;
-   tm_parms_t tm;
-
-   cps_int_bnd(0x1,s);
-   m=swfld_openMP(); /**/
-   apply_sw_openMP(VOLUME/2,mu,m,s,r);
-   set_s2zero(BNDRY/2,r+VOLUME);
-   tm=tm_parms();
-   if (tm.eoflg==1)
-      mu=0.0f;
-
-   coe=-0.5f;
-   ceo=-0.5f;
-   bc=bc_type();
-   piup=iup[VOLUME/2];
-   pidn=idn[VOLUME/2];
-
-   m+=VOLUME;
-   u=ufld_openMP();
-
-   if (((cpr[0]==0)&&(bc!=3))||((cpr[0]==(NPROC0-1))&&(bc==0)))
-   {
-      #pragma omp parallel for schedule(static,1) ordered default(none) shared(bc,cpr,mu,m,u,piup,pidn,s,r) private(rs,t,idx)
-      for (idx=0;idx<VOLUME/2;idx++)
-      {
-         t=global_time(VOLUME/2+idx);
-
-         if ((t>0)&&((t<(N0-1))||(bc!=0)))
-         {
-            doe_openMP((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
-
-            mul_pauli2(mu,m+2*idx,s+VOLUME/2+idx,r+VOLUME/2+idx);
-
-            /* first += second */
-            _vector_add_assign((*(r+VOLUME/2+idx)).c1,rs.s.c1);
-            _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
-            _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
-            _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
-
-            rs=*(spin_t*)(s+VOLUME/2+idx);
-            /* removing ordered makes the code faster, but check1 fails then. */
-            #pragma omp ordered
-            {
-               deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-            }
-         }
-         else
-         {
-            *(s+VOLUME/2+idx)=s0;
-            *(r+VOLUME/2+idx)=s0;
-         }
-      }
-
-      /* separate serial for loop for deo() */
-      /*for (idx=0;idx<VOLUME/2;idx++)
-      {
-         t=global_time(VOLUME/2+idx);
-         if ((t>0)&&((t<(N0-1))||(bc!=0)))
-         {
-            rs=*(spin_t*)(s+VOLUME/2+idx);
-            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-         }
-      }*/
-   }
-   else
-   {
-      #pragma omp parallel for schedule(static,1) ordered default(none) shared(piup,pidn,bc,cpr,mu,m,u,s,r) private(rs,t,idx)
-      for (idx=0;idx<VOLUME/2;idx++)
-      {
-         doe_openMP((piup+4*idx),(pidn+4*idx),u+8*idx,s,&rs);
-
-         mul_pauli2(mu,m+2*idx,s+VOLUME/2+idx,r+VOLUME/2+idx);
-
-         _vector_add_assign((*(r+VOLUME/2+idx)).c1,rs.s.c1);
-         _vector_add_assign((*(r+VOLUME/2+idx)).c2,rs.s.c2);
-         _vector_add_assign((*(r+VOLUME/2+idx)).c3,rs.s.c3);
-         _vector_add_assign((*(r+VOLUME/2+idx)).c4,rs.s.c4);
-
-         rs=*(spin_t*)(s+VOLUME/2+idx);
-         /* removing ordered makes the code faster, but check1 fails then. */
-         #pragma omp ordered
-         {
-            deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-         }
-      }
-
-      /* separate serial for loop for deo() */
-      /*for (idx=0;idx<VOLUME/2;idx++)
-      {
-         rs=*(spin_t*)(s+VOLUME/2+idx);
-         deo((piup+4*idx),(pidn+4*idx),u+8*idx,r,&rs);
-      }*/
-
    }
 
    cps_ext_bnd(0x1,r);
@@ -1427,7 +1562,7 @@ void Dwoe(spinor *s,spinor *r)
 
          if ((t>0)&&((t<(N0-1))||(bc!=0)))
          {
-            doe(piup,pidn,u,s,&rs);
+            doe(piup,pidn,u,s);
             (*ro)=rs;
          }
          else
@@ -1442,7 +1577,7 @@ void Dwoe(spinor *s,spinor *r)
    {
       for (;u<um;u+=8)
       {
-         doe(piup,pidn,u,s,&rs);
+         doe(piup,pidn,u,s);
          (*ro)=rs;
 
          piup+=4;
@@ -1483,7 +1618,7 @@ void Dweo(spinor *s,spinor *r)
          if ((t>0)&&((t<(N0-1))||(bc!=0)))
          {
             rs=(*so);
-            deo(piup,pidn,u,r,&rs);
+            deo(piup,pidn,u,r);
          }
          else
             (*so).s=s0;
@@ -1498,7 +1633,7 @@ void Dweo(spinor *s,spinor *r)
       for (;u<um;u+=8)
       {
          rs=(*so);
-         deo(piup,pidn,u,r,&rs);
+         deo(piup,pidn,u,r);
 
          piup+=4;
          pidn+=4;
@@ -1543,11 +1678,11 @@ void Dwhat(float mu,spinor *s,spinor *r)
 
          if ((t>0)&&((t<(N0-1))||(bc!=0)))
          {
-            doe(piup,pidn,u,s,&rs);
+            doe(piup,pidn,u,s);
 
             mul_pauli2(0.0f,m,&(rs.s),&(rs.s));
 
-            deo(piup,pidn,u,r,&rs);
+            deo(piup,pidn,u,r);
          }
 
          piup+=4;
@@ -1559,11 +1694,11 @@ void Dwhat(float mu,spinor *s,spinor *r)
    {
       for (;u<um;u+=8)
       {
-         doe(piup,pidn,u,s,&rs);
+         doe(piup,pidn,u,s);
 
          mul_pauli2(0.0f,m,&(rs.s),&(rs.s));
 
-         deo(piup,pidn,u,r,&rs);
+         deo(piup,pidn,u,r);
 
          piup+=4;
          pidn+=4;
@@ -1641,7 +1776,7 @@ void Dw_blk(blk_grid_t grid,int n,float mu,int k,int l)
       {
          if (((pidn[0]<vol)||(!ibd))&&((piup[0]<vol)||(!ibu)))
          {
-            doe(piup,pidn,u,s,&rs);
+            doe(piup,pidn,u,s);
 
             mul_pauli2(mu,m,&((*so).s),&((*ro).s));
 
@@ -1651,7 +1786,7 @@ void Dw_blk(blk_grid_t grid,int n,float mu,int k,int l)
             _vector_add_assign((*ro).s.c4,rs.s.c4);
             rs=(*so);
 
-            deo(piup,pidn,u,r,&rs);
+            deo(piup,pidn,u,r);
          }
          else
          {
@@ -1676,7 +1811,7 @@ void Dw_blk(blk_grid_t grid,int n,float mu,int k,int l)
    {
       for (;u<um;u+=8)
       {
-         doe(piup,pidn,u,s,&rs);
+         doe(piup,pidn,u,s);
 
          mul_pauli2(mu,m,&((*so).s),&((*ro).s));
 
@@ -1686,7 +1821,7 @@ void Dw_blk(blk_grid_t grid,int n,float mu,int k,int l)
          _vector_add_assign((*ro).s.c4,rs.s.c4);
          rs=(*so);
 
-         deo(piup,pidn,u,r,&rs);
+         deo(piup,pidn,u,r);
 
          piup+=4;
          pidn+=4;
@@ -1893,7 +2028,7 @@ void Dwoe_blk(blk_grid_t grid,int n,int k,int l)
       {
          if (((pidn[0]<vol)||(!ibd))&&((piup[0]<vol)||(!ibu)))
          {
-            doe(piup,pidn,u,s,&rs);
+            doe(piup,pidn,u,s);
             (*ro)=rs;
          }
          else
@@ -1908,7 +2043,7 @@ void Dwoe_blk(blk_grid_t grid,int n,int k,int l)
    {
       for (;u<um;u+=8)
       {
-         doe(piup,pidn,u,s,&rs);
+         doe(piup,pidn,u,s);
          (*ro)=rs;
 
          piup+=4;
@@ -1967,7 +2102,7 @@ void Dweo_blk(blk_grid_t grid,int n,int k,int l)
          if (((pidn[0]<vol)||(!ibd))&&((piup[0]<vol)||(!ibu)))
          {
             rs=(*so);
-            deo(piup,pidn,u,r,&rs);
+            deo(piup,pidn,u,r);
          }
          else
             (*so).s=s0;
@@ -1988,7 +2123,7 @@ void Dweo_blk(blk_grid_t grid,int n,int k,int l)
       for (;u<um;u+=8)
       {
          rs=(*so);
-         deo(piup,pidn,u,r,&rs);
+         deo(piup,pidn,u,r);
 
          piup+=4;
          pidn+=4;
@@ -2057,11 +2192,11 @@ void Dwhat_blk(blk_grid_t grid,int n,float mu,int k,int l)
       {
          if (((pidn[0]<vol)||(!ibd))&&((piup[0]<vol)||(!ibu)))
          {
-            doe(piup,pidn,u,s,&rs);
+            doe(piup,pidn,u,s);
 
             mul_pauli2(0.0f,m,&(rs.s),&(rs.s));
 
-            deo(piup,pidn,u,r,&rs);
+            deo(piup,pidn,u,r);
          }
 
          piup+=4;
@@ -2079,11 +2214,11 @@ void Dwhat_blk(blk_grid_t grid,int n,float mu,int k,int l)
    {
       for (;u<um;u+=8)
       {
-         doe(piup,pidn,u,s,&rs);
+         doe(piup,pidn,u,s);
 
          mul_pauli2(0.0f,m,&(rs.s),&(rs.s));
 
-         deo(piup,pidn,u,r,&rs);
+         deo(piup,pidn,u,r);
 
          piup+=4;
          pidn+=4;

@@ -92,6 +92,9 @@ int main(int argc,char *argv[])
       printf("SSE prefetch instructions are not used\n");
 #endif
 #endif
+#if (defined _OPENMP)
+      printf("OpenMP is avtivated\n");
+#endif
       printf("\n");
 
       bc=find_opt(argc,argv,"-bc");
@@ -127,8 +130,7 @@ int main(int argc,char *argv[])
    assign_ud2u();
    assign_swd2sw();
 
-   /*nflds=(int)((1000*1024*1024)/(VOLUME*sizeof(float)))+nflds=2*1;*/
-   nflds=2*1;
+   nflds=2*100;
    if ((nflds%2)==1)
       nflds+=1;
    alloc_ws(nflds);
@@ -137,27 +139,17 @@ int main(int argc,char *argv[])
    for (i=0;i<nflds;i++)
       random_s(VOLUME,ps[i],1.0f);
 
-   /*MPI_Barrier(MPI_COMM_WORLD);
-   wt1=MPI_Wtime();
-   for (i=0;i<nflds;i+=2)
-      Dw_openMP(mu,ps[i],ps[i+1]);
-   MPI_Barrier(MPI_COMM_WORLD);
-   wt2=MPI_Wtime();
-
-   wdt=wt2-wt1;
-
-   if (my_rank==0)
-   {
-      printf("Absolute time of %d invocations of Dw_openMP():\n", i/2);
-      printf("%4.3f sec\n\n",wdt);
-   }*/
-
    wdt=0.0;
 
    MPI_Barrier(MPI_COMM_WORLD);
    wt1=MPI_Wtime();
-   for (i=0;i<nflds;i+=2)
-      Dw_openMP(mu,ps[i],ps[i+1]);
+   #if (defined _OPENMP)
+      for (i=0;i<nflds;i+=2)
+         Dw_openMP(mu,ps[i],ps[i+1]);
+   #else
+      for (i=0;i<nflds;i+=2)
+         Dw(mu,ps[i],ps[i+1]);
+   #endif
    MPI_Barrier(MPI_COMM_WORLD);
    wt2=MPI_Wtime();
 
@@ -165,7 +157,11 @@ int main(int argc,char *argv[])
 
    if (my_rank==0)
    {
+      #if (defined _OPENMP)
       printf("Absolute time of %d invocations of Dw_openMP():\n", i/2);
+      #else
+      printf("Absolute time of %d invocations of Dw():\n", i/2);
+      #endif
       printf("%4.3f micro sec\n\n",wdt*1000000);
       fclose(flog);
    }

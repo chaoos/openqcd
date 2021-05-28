@@ -1125,13 +1125,17 @@ void apply_sw(int vol,float mu,pauli *m,spinor *s,spinor *r)
    }
 }
 
+#if (defined _OPENMP)
+
 void apply_sw_openMP(int vol,float mu,pauli *m,spinor *s,spinor *r)
 {
-   int idx;
+   int i;
 
-   #pragma omp parallel for schedule(static) default(none) shared(vol,mu,m,s,r) private(idx)
-   for (idx=0;idx<vol;idx++)
+   #pragma omp parallel for schedule(runtime) default(none) shared(vol,mu,m,s,r) private(i)
+   for (i=0;i<vol;i++)
    {
-      mul_pauli2(mu,m+2*idx,s+idx,r+idx);
+      mul_pauli2(mu,m+2*i,s+i,r+i);
    }
 }
+
+#endif
